@@ -75,8 +75,7 @@ def ConvertInput(userInput):
 def UserHasAccess(code):
     
     obj = {"code": code,"room_id": roomID}
-    x = requests.post(url,json=obj)  
-    
+    x = requests.post(url,json=obj)      
     access = x.json()["data"]   
     
     return access
@@ -97,7 +96,8 @@ def reset():
     global userInput
     total = 0
     userInput = []
-    print("Program has been reset")
+    print("Program has been reset")    
+    
 def readLine(line, characters):
     
     GPIO.output(line, GPIO.HIGH)    

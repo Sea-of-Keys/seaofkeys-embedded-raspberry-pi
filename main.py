@@ -1,11 +1,12 @@
 # This example is a hello world example
 # for using a keypad with the Raspberry Pi
-
+import threading, time, os
 import RPi.GPIO as GPIO
 import time
 import requests
+from api import setup, login, refresh
 
-url = "https://api.seaofkeys.com/em/login"
+session = requests.Session()
 roomID = "1"
 
 buzzer = 4
@@ -43,6 +44,13 @@ GPIO.setup(C1, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(C2, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(C3, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(C4, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+
+def autoRefresh(session):
+    while True:
+        refresh(session)
+        time.sleep(3600)
+
+
 
 def lamp(sleepTime, color):       
     
@@ -116,27 +124,35 @@ def readLine(line, characters):
     
     GPIO.output(line, GPIO.LOW)
     
+def main();
 
-while not correct:
-    readLine(L1, ["1","2","3","A"])
-    readLine(L2, ["4","5","6","B"])
-    readLine(L3, ["7","8","9","C"])
-    readLine(L4, ["*","0","#","D"])
-    time.sleep(0.2)
-    
-    for item in userInput:
-        if(item == "*"):
-            reset()
-    
-    if total >= 6:    
-        
-        if UserHasAccess(ConvertInput(userInput)): 
-            print("Password is correct")
-            lamp(5,"green")            
-            reset()
-             
-        else:            
-            print("Password is incorrect")
-            lamp(5,"red")
-            reset()
-                        
+    if os.environ.get("ROOMID") == None or os.environ.get("SECERT") == None or os.environ.get("EMBEDDEDID") == None or os.environ.get("URL") == None:
+        return
+    setup(session)
+
+    threading.Thread(target=autoRefresh, args=(session,)).start()
+    while not correct:
+        readLine(L1, ["1","2","3","A"])
+        readLine(L2, ["4","5","6","B"])
+        readLine(L3, ["7","8","9","C"])
+        readLine(L4, ["*","0","#","D"])
+        time.sleep(0.2)
+
+        for item in userInput:
+            if(item == "*"):
+                reset()
+
+        if total >= 6:    
+
+            if login(session, ConvertInput(userInput)): 
+                print("Password is correct")
+                lamp(5,"green")            
+                reset()
+
+            else:            
+                print("Password is incorrect")
+                lamp(5,"red")
+                reset()
+
+if __name__ == "__main__":
+    main()

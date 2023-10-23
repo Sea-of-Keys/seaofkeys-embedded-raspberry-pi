@@ -50,8 +50,6 @@ def autoRefresh(session):
         refresh(session)
         time.sleep(3600)
 
-
-
 def lamp(sleepTime, color):       
     
     if color == "green":            
@@ -78,16 +76,7 @@ def ConvertInput(userInput):
         
         result += item
         
-    return result       
-
-def UserHasAccess(code):
-    
-    obj = {"code": code,"room_id": roomID}
-    x = requests.post(url,json=obj)      
-    access = x.json()["data"]   
-    
-    return access
-        
+    return result        
  
 def keyPressed(keyPressed):    
     global total    
@@ -124,9 +113,9 @@ def readLine(line, characters):
     
     GPIO.output(line, GPIO.LOW)
     
-def main();
+def main():
 
-    if os.environ.get("ROOMID") == None or os.environ.get("SECERT") == None or os.environ.get("EMBEDDEDID") == None or os.environ.get("URL") == None:
+    if os.environ.get("ROOMID") == None or os.environ.get("SECRET") == None or os.environ.get("EMBEDDEDID") == None or os.environ.get("URL") == None:
         return
     setup(session)
 
@@ -142,17 +131,24 @@ def main();
             if(item == "*"):
                 reset()
 
-        if total >= 6:    
+        if total >= 6:
+            
+            print(ConvertInput(userInput))
 
             if login(session, ConvertInput(userInput)): 
-                print("Password is correct")
+                print("Password is correct")                   
                 lamp(5,"green")            
                 reset()
 
             else:            
                 print("Password is incorrect")
-                lamp(5,"red")
+                lamp(5,"red")         
+                
                 reset()
 
 if __name__ == "__main__":
     main()
+    
+    
+    
+#ROOMID=1 SECRET="kronborg" EMBEDDEDID=1 URL="https://api.seaofkeys.com" python main.py
